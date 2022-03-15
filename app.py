@@ -13,8 +13,12 @@ requests_session.headers.update({
 def index():
     return flask.render_template('index.html')
 
-@app.route('/comic/<int:id>')
+@app.route('/comic/Q<int:id>')
 def comic(id):
-    info = requests_session.get(f'https://xkcd.com/{id}/info.0.json').json()
+    item_id = f'Q{id}'
+    item_response = requests_session.get(f'https://www.wikidata.org/entity/{item_id}').json()
+    item = item_response['entities'][item_id]
+    issue = item['claims']['P433'][0]['mainsnak']['datavalue']['value']
+    info = requests_session.get(f'https://xkcd.com/{issue}/info.0.json').json()
     return flask.render_template('comic.html',
                                  info=info)
