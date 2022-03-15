@@ -7,7 +7,7 @@
     <h1>Comics featuring {{ item_id }}</h1>
     <ul>
       {% for comic_item_id in comic_item_ids %}
-      <li>{{ comic_item_id }}</li>
+      <li><a href="{{ url_for('comic', id=comic_item_id[1:]) }}">{{ comic_item_id }}</a></li>
       {% endfor %}
     </ul>
   </body>
