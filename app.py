@@ -23,7 +23,8 @@ def index():
 def comic(id):
     item_id = f'Q{id}'
     item_response = api_session.get(action='wbgetentities',
-                                    ids=[item_id])
+                                    ids=[item_id],
+                                    props=['claims'])
     item = item_response['entities'][item_id]
     issue = item['claims']['P433'][0]['mainsnak']['datavalue']['value']
     info = requests_session.get(f'https://xkcd.com/{issue}/info.0.json').json()
