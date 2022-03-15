@@ -48,3 +48,27 @@ def comic(id):
                                  info=info,
                                  depicted_item_ids=depicted_item_ids,
                                  labels=labels)
+
+@app.route('/character/Q<int:id>')
+def character(id):
+    item_id = f'Q{id}'
+
+    query = """
+      SELECT ?comic WHERE {
+        ?comic wdt:P361 wd:Q13915;
+               wdt:P180 wd:%s.
+      }
+    """ % item_id
+    result = requests_session.get('https://query.wikidata.org/sparql',
+                                  params={'query': query}).json()
+
+    comic_item_ids = []
+    for binding in result['results']['bindings']:
+        comic_uri = binding['comic']['value']
+        assert comic_uri.startswith('http://www.wikidata.org/entity/')
+        comic_item_id = comic_uri[len('http://www.wikidata.org/entity/'):]
+        comic_item_ids.append(comic_item_id)
+
+    return flask.render_template('character.html',
+                                 item_id=item_id,
+                                 comic_item_ids=comic_item_ids)

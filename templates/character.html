@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{ item_id }} – Wikidata xkcd browser</title>
+  </head>
+  <body>
+    <h1>Comics featuring {{ item_id }}</h1>
+    <ul>
+      {% for comic_item_id in comic_item_ids %}
+      <li>{{ comic_item_id }}</li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>
