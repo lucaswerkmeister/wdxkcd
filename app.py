@@ -33,8 +33,18 @@ def comic(id):
         depicted_item_id = statement['mainsnak']['datavalue']['value']['id']
         depicted_item_ids.append(depicted_item_id)
 
+    labels_response = api_session.get(action='wbgetentities',
+                                      ids=depicted_item_ids,  # TODO split if >50 depicted_item_ids
+                                      props=['labels'],
+                                      languages=['en'],
+                                      languagefallback=1)
+    labels = {}
+    for entity_id, entity in labels_response['entities'].items():
+        labels[entity_id] = entity['labels']['en']['value']
+
     info = requests_session.get(f'https://xkcd.com/{issue}/info.0.json').json()
 
     return flask.render_template('comic.html',
                                  info=info,
-                                 depicted_item_ids=depicted_item_ids)
+                                 depicted_item_ids=depicted_item_ids,
+                                 labels=labels)
