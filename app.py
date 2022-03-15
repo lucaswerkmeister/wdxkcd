@@ -23,13 +23,14 @@ sparql_session.setReturnFormat(SPARQLWrapper.JSON)
 def get_labels(item_ids):
     labels = {}
 
-    labels_response = api_session.get(action='wbgetentities',
-                                      ids=item_ids,  # TODO split if >50 depicted_item_ids
-                                      props=['labels'],
-                                      languages=['en'],
-                                      languagefallback=1)
-    for entity_id, entity in labels_response['entities'].items():
-        labels[entity_id] = entity['labels']['en']['value']
+    for chunk in [item_ids[i:i+50] for i in range(0, len(item_ids), 50)]:
+        labels_response = api_session.get(action='wbgetentities',
+                                          ids=chunk,
+                                          props=['labels'],
+                                          languages=['en'],
+                                          languagefallback=1)
+        for entity_id, entity in labels_response['entities'].items():
+            labels[entity_id] = entity['labels']['en']['value']
 
     return labels
 
