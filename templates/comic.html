@@ -6,5 +6,11 @@
   <body>
     <h1>{{ info.title }} </h1>
     <img src="{{ info.img }}" title="{{ info.alt }}">
+    <h2>Characters</h2>
+    <ul>
+      {% for depicted_item_id in depicted_item_ids %}
+      <li>{{ depicted_item_id }}</li>
+      {% endfor %}
+    </ul>
   </body>
 </html>

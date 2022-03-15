@@ -27,6 +27,14 @@ def comic(id):
                                     props=['claims'])
     item = item_response['entities'][item_id]
     issue = item['claims']['P433'][0]['mainsnak']['datavalue']['value']
+
+    depicted_item_ids = []
+    for statement in item['claims'].get('P180', []):
+        depicted_item_id = statement['mainsnak']['datavalue']['value']['id']
+        depicted_item_ids.append(depicted_item_id)
+
     info = requests_session.get(f'https://xkcd.com/{issue}/info.0.json').json()
+
     return flask.render_template('comic.html',
-                                 info=info)
+                                 info=info,
+                                 depicted_item_ids=depicted_item_ids)
