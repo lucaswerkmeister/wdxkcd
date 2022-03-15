@@ -1,6 +1,7 @@
 import flask
 import mwapi
 import requests
+import SPARQLWrapper
 
 app = flask.Flask(__name__)
 
@@ -14,6 +15,10 @@ requests_session.headers.update({
 
 api_session = mwapi.Session('https://www.wikidata.org',
                             user_agent=user_agent)
+
+sparql_session = SPARQLWrapper.SPARQLWrapper('https://query.wikidata.org/sparql',
+                                             agent=user_agent)
+sparql_session.setReturnFormat(SPARQLWrapper.JSON)
 
 @app.route('/')
 def index():
@@ -59,8 +64,8 @@ def character(id):
                wdt:P180 wd:%s.
       }
     """ % item_id
-    result = requests_session.get('https://query.wikidata.org/sparql',
-                                  params={'query': query}).json()
+    sparql_session.setQuery(query)
+    result = sparql_session.query().convert()
 
     comic_item_ids = []
     for binding in result['results']['bindings']:
