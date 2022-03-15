@@ -20,6 +20,19 @@ sparql_session = SPARQLWrapper.SPARQLWrapper('https://query.wikidata.org/sparql'
                                              agent=user_agent)
 sparql_session.setReturnFormat(SPARQLWrapper.JSON)
 
+def get_labels(item_ids):
+    labels = {}
+
+    labels_response = api_session.get(action='wbgetentities',
+                                      ids=item_ids,  # TODO split if >50 depicted_item_ids
+                                      props=['labels'],
+                                      languages=['en'],
+                                      languagefallback=1)
+    for entity_id, entity in labels_response['entities'].items():
+        labels[entity_id] = entity['labels']['en']['value']
+
+    return labels
+
 @app.route('/')
 def index():
     return flask.render_template('index.html')
@@ -38,14 +51,7 @@ def comic(id):
         depicted_item_id = statement['mainsnak']['datavalue']['value']['id']
         depicted_item_ids.append(depicted_item_id)
 
-    labels_response = api_session.get(action='wbgetentities',
-                                      ids=depicted_item_ids,  # TODO split if >50 depicted_item_ids
-                                      props=['labels'],
-                                      languages=['en'],
-                                      languagefallback=1)
-    labels = {}
-    for entity_id, entity in labels_response['entities'].items():
-        labels[entity_id] = entity['labels']['en']['value']
+    labels = get_labels(depicted_item_ids)
 
     info = requests_session.get(f'https://xkcd.com/{issue}/info.0.json').json()
 
@@ -74,6 +80,9 @@ def character(id):
         comic_item_id = comic_uri[len('http://www.wikidata.org/entity/'):]
         comic_item_ids.append(comic_item_id)
 
+    labels = get_labels([item_id] + comic_item_ids)
+
     return flask.render_template('character.html',
                                  item_id=item_id,
-                                 comic_item_ids=comic_item_ids)
+                                 comic_item_ids=comic_item_ids,
+                                 labels=labels)
